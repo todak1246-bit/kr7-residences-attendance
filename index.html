@@ -459,21 +459,16 @@ function showResult(result) {
 
   document
     .getElementById('attendanceForm')
-    .style.display =
-    'none';
-
+    .style.display = 'none';
 
   document
     .getElementById('result')
-    .style.display =
-    'block';
-
+    .style.display = 'block';
 
   document
     .getElementById('resultIcon')
     .textContent =
     result.success ? '✓' : '!';
-
 
   document
     .getElementById('resultTitle')
@@ -483,43 +478,58 @@ function showResult(result) {
       ? 'Attendance Recorded'
       : 'Check-in Failed');
 
+  let message = '';
 
-  let message =
-    result.message || '';
+  /* WELCOME OWNER / PARTNER */
 
+  if (result.success && result.welcomeName) {
 
-  if (
-    result.success &&
-    result.unit
-  ) {
+    message +=
+      '<div style="font-size:18px;margin-bottom:6px;">Welcome</div>' +
 
-    message =
-      '<strong>Unit ' +
-      escapeHtml(result.unit) +
-      '</strong><br><br>' +
-      escapeHtml(result.message || '');
-
-
-    if (
-      result.time &&
-      !result.duplicate
-    ) {
-
-      message +=
-        '<br><br><strong>' +
-        escapeHtml(result.time) +
-        '</strong>';
-    }
+      '<div style="' +
+        'font-size:22px;' +
+        'font-weight:700;' +
+        'color:#17365D;' +
+        'margin-bottom:16px;' +
+      '">' +
+        escapeHtml(result.welcomeName) +
+      '</div>';
   }
 
+  /* UNIT NUMBER */
+
+  if (result.unit) {
+
+    message +=
+      '<strong>Unit ' +
+      escapeHtml(result.unit) +
+      '</strong>';
+  }
+
+  /* SUCCESS / ERROR MESSAGE */
+
+  if (result.message) {
+
+    message +=
+      '<br><br>' +
+      escapeHtml(result.message);
+  }
+
+  /* CHECK-IN TIME */
+
+  if (result.time) {
+
+    message +=
+      '<br><br><strong>' +
+      escapeHtml(result.time) +
+      '</strong>';
+  }
 
   document
     .getElementById('resultMessage')
-    .innerHTML =
-    message;
-
+    .innerHTML = message;
 }
-
 
 
 /* ==========================
