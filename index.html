@@ -93,6 +93,25 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* WHATSAPP BUTTON */
+
+.whatsappButton {
+  background: #25D366;
+  color: white;
+  margin-top: 12px;
+}
+
+.whatsappButton:hover {
+  opacity: .9;
+}
+
+.whatsappHelp {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  margin-top: 7px;
+}
+
 .note {
   text-align: center;
   color: #777;
@@ -202,27 +221,21 @@ registered mobile number.
 
 
 <label for="unit">
-
 Unit Number
-
 </label>
 
 
 <select id="unit">
 
 <option value="">
-
 Loading unit numbers...
-
 </option>
 
 </select>
 
 
 <label for="last4">
-
 Last 4 digits of registered mobile number
-
 </label>
 
 
@@ -236,6 +249,8 @@ Last 4 digits of registered mobile number
   autocomplete="off">
 
 
+<!-- CHECK IN -->
+
 <button
   id="checkButton"
   onclick="checkIn()">
@@ -243,6 +258,25 @@ Last 4 digits of registered mobile number
 CHECK IN
 
 </button>
+
+
+<!-- WHATSAPP -->
+
+<button
+  type="button"
+  class="whatsappButton"
+  onclick="contactAdmin()">
+
+UPDATE DETAILS VIA WHATSAPP
+
+</button>
+
+
+<div class="whatsappHelp">
+
+Use this if your registered mobile number or resident information has changed.
+
+</div>
 
 
 <div
@@ -258,7 +292,7 @@ Checking your registration...
 
 Your mobile number is only used to verify your selected unit.<br>
 Do not share this QR code outside the event.<br>
-If your registered mobile number has changed, please contact the KR7 Residences Owner Admin.
+If your registered information has changed, please contact the KR7 Residences Owner Admin.
 
 </div>
 
@@ -268,7 +302,7 @@ If your registered mobile number has changed, please contact the KR7 Residences 
 
 
 <!-- ==========================
-     RESULT
+     RESULT SCREEN
      ========================== -->
 
 
@@ -327,13 +361,12 @@ DONE
 
 
 /* =====================================================
-   KR7 APPS SCRIPT BACKEND
+   APPS SCRIPT BACKEND
    ===================================================== */
 
 
 const API_URL =
   'https://script.google.com/macros/s/AKfycbzk1YAfLPSgwUzdw8dk_xFqx1Z3965dH6WeH9AWgYwxcGfiWmgQjp4LroMAUKWD_iaL/exec';
-
 
 
 /* =====================================================
@@ -444,39 +477,26 @@ async function checkIn() {
       .slice(-4);
 
 
-
-  /* VALIDATE UNIT */
-
-
   if (!unit) {
-
 
     alert(
       'Please select your home unit number.'
     );
 
-
     return;
 
   }
 
 
-
-  /* VALIDATE MOBILE */
-
-
   if (last4.length !== 4) {
-
 
     alert(
       'Please enter the last 4 digits of your registered mobile number.'
     );
 
-
     return;
 
   }
-
 
 
   const button =
@@ -493,7 +513,6 @@ async function checkIn() {
       );
 
 
-
   button.disabled =
     true;
 
@@ -504,7 +523,6 @@ async function checkIn() {
 
   loading.style.display =
     'block';
-
 
 
   try {
@@ -526,7 +544,6 @@ async function checkIn() {
       );
 
 
-
     const response =
       await fetch(
         url
@@ -535,7 +552,6 @@ async function checkIn() {
 
     const result =
       await response.json();
-
 
 
     showResult(
@@ -554,8 +570,7 @@ async function checkIn() {
 
     showResult({
 
-      success:
-        false,
+      success: false,
 
       title:
         'System Error',
@@ -588,6 +603,111 @@ async function checkIn() {
 
 
 /* =====================================================
+   WHATSAPP ADMIN
+   ===================================================== */
+
+
+function contactAdmin() {
+
+
+  const unit =
+    document
+      .getElementById('unit')
+      .value;
+
+
+  /*
+    Ask resident for their name
+  */
+
+
+  let name =
+    prompt(
+      'Please enter your name:'
+    );
+
+
+  if (name === null) {
+
+    return;
+
+  }
+
+
+  name =
+    name.trim();
+
+
+  if (!name) {
+
+    alert(
+      'Please enter your name.'
+    );
+
+    return;
+
+  }
+
+
+  /*
+    If unit has not been selected,
+    ask resident to select it first.
+  */
+
+
+  if (!unit) {
+
+    alert(
+      'Please select your unit number first.'
+    );
+
+    return;
+
+  }
+
+
+  /*
+    WhatsApp message
+  */
+
+
+  const message =
+    'Hi Admin, My Name is ' +
+    name +
+    '. Unit Number is ' +
+    unit +
+    '. Please update my registered information.';
+
+
+  /*
+    KR7 Residences Owner Admin
+
+    +6012-4004208
+  */
+
+
+  const whatsappURL =
+    'https://wa.me/60124004208?text=' +
+    encodeURIComponent(
+      message
+    );
+
+
+  /*
+    Open WhatsApp
+  */
+
+
+  window.open(
+    whatsappURL,
+    '_blank'
+  );
+
+}
+
+
+
+/* =====================================================
    RESULT SCREEN
    ===================================================== */
 
@@ -611,10 +731,6 @@ function showResult(result) {
     'block';
 
 
-
-  /* ICON */
-
-
   document
     .getElementById(
       'resultIcon'
@@ -623,10 +739,6 @@ function showResult(result) {
     result.success
       ? '✓'
       : '!';
-
-
-
-  /* TITLE */
 
 
   document
@@ -644,23 +756,20 @@ function showResult(result) {
     );
 
 
-
   let message =
     '';
 
 
-
-  /* ==================================================
+  /* ==============================
      SUCCESS
-     ================================================== */
+     ============================== */
 
 
   if (result.success) {
 
 
     /*
-       DISPLAY ONLY THE PERSON
-       WHO ACTUALLY CHECKED IN
+      ATTENDEE NAME
     */
 
 
@@ -695,8 +804,9 @@ function showResult(result) {
     }
 
 
-
-    /* UNIT */
+    /*
+      UNIT
+    */
 
 
     if (
@@ -728,8 +838,9 @@ function showResult(result) {
     }
 
 
-
-    /* DATE / TIME */
+    /*
+      DATE / TIME
+    */
 
 
     if (
@@ -762,10 +873,9 @@ function showResult(result) {
   }
 
 
-
-  /* ==================================================
+  /* ==============================
      ERROR
-     ================================================== */
+     ============================== */
 
 
   else {
@@ -797,7 +907,6 @@ function showResult(result) {
   }
 
 
-
   document
     .getElementById(
       'resultMessage'
@@ -811,7 +920,7 @@ function showResult(result) {
 
 
 /* =====================================================
-   DONE / RESET
+   RESET
    ===================================================== */
 
 
@@ -834,14 +943,12 @@ function resetForm() {
     'block';
 
 
-
   document
     .getElementById(
       'unit'
     )
     .value =
     '';
-
 
 
   document
