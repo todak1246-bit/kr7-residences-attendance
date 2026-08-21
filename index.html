@@ -57,6 +57,7 @@ h1 {
   color: #666;
   font-size: 16px;
   margin-bottom: 28px;
+  line-height: 1.5;
 }
 
 label {
@@ -65,7 +66,6 @@ label {
   margin: 18px 0 8px;
 }
 
-select,
 input {
   width: 100%;
   padding: 15px;
@@ -73,6 +73,11 @@ input {
   border-radius: 9px;
   font-size: 17px;
   background: white;
+}
+
+input:focus {
+  outline: none;
+  border-color: #17365D;
 }
 
 button {
@@ -93,7 +98,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* WHATSAPP BUTTON */
+
+/* ==========================
+   WHATSAPP
+   ========================== */
 
 .whatsappButton {
   background: #25D366;
@@ -110,7 +118,13 @@ button:disabled {
   color: #666;
   font-size: 12px;
   margin-top: 7px;
+  line-height: 1.4;
 }
+
+
+/* ==========================
+   NOTES
+   ========================== */
 
 .note {
   text-align: center;
@@ -120,12 +134,22 @@ button:disabled {
   margin-top: 18px;
 }
 
+
+/* ==========================
+   LOADING
+   ========================== */
+
 .loading {
   display: none;
   text-align: center;
   margin-top: 20px;
   color: #666;
 }
+
+
+/* ==========================
+   RESULT
+   ========================== */
 
 #result {
   display: none;
@@ -180,6 +204,10 @@ button:disabled {
     font-size: 27px;
   }
 
+  input {
+    font-size: 18px;
+  }
+
 }
 
 </style>
@@ -193,9 +221,9 @@ button:disabled {
 <div class="card">
 
 
-<!-- ==========================
+<!-- ==================================================
      ATTENDANCE FORM
-     ========================== -->
+     ================================================== -->
 
 <div id="attendanceForm">
 
@@ -214,28 +242,41 @@ button:disabled {
 
 <div class="subtitle">
 
-Please select your unit number and verify your
+Enter your unit number and the last 4 digits of your
 registered mobile number.
 
 </div>
 
 
+<!-- ==========================
+     UNIT NUMBER
+     ========================== -->
+
 <label for="unit">
+
 Unit Number
+
 </label>
 
 
-<select id="unit">
+<input
+  id="unit"
+  type="text"
+  placeholder="for example = A-27-2"
+  autocomplete="off"
+  autocapitalize="characters"
+  spellcheck="false"
+  oninput="formatUnit(this)">
 
-<option value="">
-Loading unit numbers...
-</option>
 
-</select>
-
+<!-- ==========================
+     MOBILE
+     ========================== -->
 
 <label for="last4">
+
 Last 4 digits of registered mobile number
+
 </label>
 
 
@@ -246,10 +287,13 @@ Last 4 digits of registered mobile number
   pattern="[0-9]*"
   maxlength="4"
   placeholder="for example = 2702"
-  autocomplete="off">
+  autocomplete="off"
+  oninput="formatMobile(this)">
 
 
-<!-- CHECK IN -->
+<!-- ==========================
+     CHECK IN
+     ========================== -->
 
 <button
   id="checkButton"
@@ -260,7 +304,9 @@ CHECK IN
 </button>
 
 
-<!-- WHATSAPP -->
+<!-- ==========================
+     WHATSAPP UPDATE
+     ========================== -->
 
 <button
   type="button"
@@ -279,6 +325,10 @@ Use this if your registered mobile number or resident information has changed.
 </div>
 
 
+<!-- ==========================
+     LOADING
+     ========================== -->
+
 <div
   id="loading"
   class="loading">
@@ -288,9 +338,13 @@ Checking your registration...
 </div>
 
 
+<!-- ==========================
+     NOTE
+     ========================== -->
+
 <div class="note">
 
-Your mobile number is only used to verify your selected unit.<br>
+Your mobile number is only used to verify your unit.<br>
 Do not share this QR code outside the event.<br>
 If your registered information has changed, please contact the KR7 Residences Owner Admin.
 
@@ -301,10 +355,9 @@ If your registered information has changed, please contact the KR7 Residences Ow
 
 
 
-<!-- ==========================
+<!-- ==================================================
      RESULT SCREEN
-     ========================== -->
-
+     ================================================== -->
 
 <div id="result">
 
@@ -364,92 +417,36 @@ DONE
    APPS SCRIPT BACKEND
    ===================================================== */
 
-
 const API_URL =
   'https://script.google.com/macros/s/AKfycbzk1YAfLPSgwUzdw8dk_xFqx1Z3965dH6WeH9AWgYwxcGfiWmgQjp4LroMAUKWD_iaL/exec';
 
 
+
 /* =====================================================
-   LOAD UNIT NUMBERS
+   FORMAT UNIT NUMBER
    ===================================================== */
 
+function formatUnit(input) {
 
-async function loadUnits() {
+  input.value =
+    input.value
+      .toUpperCase()
+      .replace(/\s/g, '');
 
-
-  const select =
-    document.getElementById('unit');
-
-
-  try {
-
-
-    const response =
-      await fetch(
-        API_URL +
-        '?action=units'
-      );
+}
 
 
-    const data =
-      await response.json();
 
+/* =====================================================
+   FORMAT MOBILE
+   ===================================================== */
 
-    if (!data.success) {
+function formatMobile(input) {
 
-      throw new Error(
-        data.message ||
-        'Unable to load units'
-      );
-
-    }
-
-
-    select.innerHTML =
-      '<option value="">Select your unit</option>';
-
-
-    data.units.forEach(
-      function(unit) {
-
-
-        const option =
-          document.createElement(
-            'option'
-          );
-
-
-        option.value =
-          unit;
-
-
-        option.textContent =
-          unit;
-
-
-        select.appendChild(
-          option
-        );
-
-
-      }
-    );
-
-
-  } catch (error) {
-
-
-    console.error(
-      'Unit loading error:',
-      error
-    );
-
-
-    select.innerHTML =
-      '<option value="">Unable to load units</option>';
-
-
-  }
+  input.value =
+    input.value
+      .replace(/\D/g, '')
+      .slice(0, 4);
 
 }
 
@@ -459,14 +456,16 @@ async function loadUnits() {
    CHECK IN
    ===================================================== */
 
-
 async function checkIn() {
 
 
   const unit =
     document
       .getElementById('unit')
-      .value;
+      .value
+      .trim()
+      .toUpperCase()
+      .replace(/\s/g, '');
 
 
   const last4 =
@@ -477,16 +476,30 @@ async function checkIn() {
       .slice(-4);
 
 
+
+  /* ==========================
+     VALIDATE UNIT
+     ========================== */
+
   if (!unit) {
 
     alert(
-      'Please select your home unit number.'
+      'Please enter your unit number.'
     );
+
+    document
+      .getElementById('unit')
+      .focus();
 
     return;
 
   }
 
+
+
+  /* ==========================
+     VALIDATE MOBILE
+     ========================== */
 
   if (last4.length !== 4) {
 
@@ -494,9 +507,14 @@ async function checkIn() {
       'Please enter the last 4 digits of your registered mobile number.'
     );
 
+    document
+      .getElementById('last4')
+      .focus();
+
     return;
 
   }
+
 
 
   const button =
@@ -523,6 +541,7 @@ async function checkIn() {
 
   loading.style.display =
     'block';
+
 
 
   try {
@@ -606,20 +625,40 @@ async function checkIn() {
    WHATSAPP ADMIN
    ===================================================== */
 
-
 function contactAdmin() {
 
 
   const unit =
     document
       .getElementById('unit')
-      .value;
+      .value
+      .trim()
+      .toUpperCase()
+      .replace(/\s/g, '');
 
 
   /*
-    Ask resident for their name
+    Require Unit Number first.
   */
 
+  if (!unit) {
+
+    alert(
+      'Please enter your unit number first.'
+    );
+
+    document
+      .getElementById('unit')
+      .focus();
+
+    return;
+
+  }
+
+
+  /*
+    Ask resident for name.
+  */
 
   let name =
     prompt(
@@ -650,26 +689,8 @@ function contactAdmin() {
 
 
   /*
-    If unit has not been selected,
-    ask resident to select it first.
+    Prepare WhatsApp message.
   */
-
-
-  if (!unit) {
-
-    alert(
-      'Please select your unit number first.'
-    );
-
-    return;
-
-  }
-
-
-  /*
-    WhatsApp message
-  */
-
 
   const message =
     'Hi Admin, My Name is ' +
@@ -681,10 +702,8 @@ function contactAdmin() {
 
   /*
     KR7 Residences Owner Admin
-
     +6012-4004208
   */
-
 
   const whatsappURL =
     'https://wa.me/60124004208?text=' +
@@ -694,9 +713,8 @@ function contactAdmin() {
 
 
   /*
-    Open WhatsApp
+    Open WhatsApp.
   */
-
 
   window.open(
     whatsappURL,
@@ -710,7 +728,6 @@ function contactAdmin() {
 /* =====================================================
    RESULT SCREEN
    ===================================================== */
-
 
 function showResult(result) {
 
@@ -731,6 +748,11 @@ function showResult(result) {
     'block';
 
 
+
+  /* ==========================
+     ICON
+     ========================== */
+
   document
     .getElementById(
       'resultIcon'
@@ -740,6 +762,11 @@ function showResult(result) {
       ? '✓'
       : '!';
 
+
+
+  /* ==========================
+     TITLE
+     ========================== */
 
   document
     .getElementById(
@@ -756,22 +783,22 @@ function showResult(result) {
     );
 
 
+
   let message =
     '';
 
 
-  /* ==============================
-     SUCCESS
-     ============================== */
 
+  /* ==================================================
+     SUCCESS
+     ================================================== */
 
   if (result.success) {
 
 
-    /*
-      ATTENDEE NAME
-    */
-
+    /* ==========================
+       ATTENDEE NAME
+       ========================== */
 
     if (
       result.attendeeName
@@ -804,10 +831,10 @@ function showResult(result) {
     }
 
 
-    /*
-      UNIT
-    */
 
+    /* ==========================
+       UNIT NUMBER
+       ========================== */
 
     if (
       result.unit
@@ -838,10 +865,10 @@ function showResult(result) {
     }
 
 
-    /*
-      DATE / TIME
-    */
 
+    /* ==========================
+       DATE / TIME
+       ========================== */
 
     if (
       result.time
@@ -873,10 +900,10 @@ function showResult(result) {
   }
 
 
-  /* ==============================
-     ERROR
-     ============================== */
 
+  /* ==================================================
+     FAILED VERIFICATION
+     ================================================== */
 
   else {
 
@@ -907,6 +934,7 @@ function showResult(result) {
   }
 
 
+
   document
     .getElementById(
       'resultMessage'
@@ -920,9 +948,8 @@ function showResult(result) {
 
 
 /* =====================================================
-   RESET
+   DONE / RESET
    ===================================================== */
-
 
 function resetForm() {
 
@@ -959,6 +986,13 @@ function resetForm() {
     '';
 
 
+  document
+    .getElementById(
+      'unit'
+    )
+    .focus();
+
+
 }
 
 
@@ -966,7 +1000,6 @@ function resetForm() {
 /* =====================================================
    HTML SECURITY
    ===================================================== */
-
 
 function escapeHtml(value) {
 
@@ -1006,15 +1039,6 @@ function escapeHtml(value) {
   );
 
 }
-
-
-
-/* =====================================================
-   START
-   ===================================================== */
-
-
-loadUnits();
 
 
 </script>
