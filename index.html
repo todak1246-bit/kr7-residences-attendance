@@ -11,7 +11,6 @@
 
 <title>KR7 Residences Owners Attendance</title>
 
-
 <style>
 
 * {
@@ -116,12 +115,12 @@ button:disabled {
 }
 
 .resultIcon {
-  font-size: 55px;
+  font-size: 60px;
   margin-bottom: 10px;
 }
 
 .resultTitle {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: bold;
   color: #17365D;
   margin-bottom: 12px;
@@ -131,6 +130,37 @@ button:disabled {
   font-size: 17px;
   line-height: 1.6;
   color: #444;
+}
+
+
+/* ==========================
+   MOBILE
+   ========================== */
+
+@media (max-width: 600px) {
+
+  body {
+    padding: 12px;
+  }
+
+  .card {
+    margin: 12px auto;
+    padding: 25px 20px;
+  }
+
+  .logo img {
+    width: 200px;
+    max-width: 70%;
+  }
+
+  h1 {
+    font-size: 27px;
+  }
+
+  .resultTitle {
+    font-size: 27px;
+  }
+
 }
 
 </style>
@@ -143,6 +173,10 @@ button:disabled {
 
 <div class="card">
 
+
+<!-- ==========================
+     ATTENDANCE FORM
+     ========================== -->
 
 <div id="attendanceForm">
 
@@ -161,21 +195,25 @@ button:disabled {
 
 <div class="subtitle">
 
-Please select your unit numbers and verify your
-registered mobile numbers.
+Please select your unit number and verify your
+registered mobile number.
 
 </div>
 
 
 <label for="unit">
+
 Unit Number
+
 </label>
 
 
 <select id="unit">
 
 <option value="">
+
 Loading unit numbers...
+
 </option>
 
 </select>
@@ -183,7 +221,7 @@ Loading unit numbers...
 
 <label for="last4">
 
-Last 4 digits of registered mobile numbers
+Last 4 digits of registered mobile number
 
 </label>
 
@@ -192,8 +230,10 @@ Last 4 digits of registered mobile numbers
   id="last4"
   type="tel"
   inputmode="numeric"
+  pattern="[0-9]*"
   maxlength="4"
-  placeholder="for example = 2702">
+  placeholder="for example = 2702"
+  autocomplete="off">
 
 
 <button
@@ -215,13 +255,21 @@ Checking your registration...
 
 
 <div class="note">
-  Your mobile numbers only to verify your selected unit.<br>
-  Do not share this QR code outside the event.<br>
-  If your registered mobile number has changed, please contact the KR7 Residences Owner Admin.
-</div>
+
+Your mobile number is only used to verify your selected unit.<br>
+Do not share this QR code outside the event.<br>
+If your registered mobile number has changed, please contact the KR7 Residences Owner Admin.
 
 </div>
 
+
+</div>
+
+
+
+<!-- ==========================
+     RESULT
+     ========================== -->
 
 
 <div id="result">
@@ -278,36 +326,49 @@ DONE
 <script>
 
 
+/* =====================================================
+   KR7 APPS SCRIPT BACKEND
+   ===================================================== */
+
+
 const API_URL =
-  'https://script.google.com/macros/s/AKfycbxCGoGR_Zxw49EyG0PBvws6DzA17WKttm_MJSNCvZMpTlob08xTzPFU3jAYUN8nHHbZGg/exec';
+  'https://script.google.com/macros/s/AKfycbzk1YAfLPSgwUzdw8dk_xFqx1Z3965dH6WeH9AWgYwxcGfiWmgQjp4LroMAUKWD_iaL/exec';
 
 
 
-/* ==========================
-   LOAD UNITS
-   ========================== */
+/* =====================================================
+   LOAD UNIT NUMBERS
+   ===================================================== */
+
 
 async function loadUnits() {
+
 
   const select =
     document.getElementById('unit');
 
+
   try {
+
 
     const response =
       await fetch(
-        API_URL + '?action=units'
+        API_URL +
+        '?action=units'
       );
+
 
     const data =
       await response.json();
 
 
     if (!data.success) {
+
       throw new Error(
         data.message ||
         'Unable to load units'
       );
+
     }
 
 
@@ -315,39 +376,64 @@ async function loadUnits() {
       '<option value="">Select your unit</option>';
 
 
-    data.units.forEach(function(unit) {
+    data.units.forEach(
+      function(unit) {
 
-      const option =
-        document.createElement('option');
 
-      option.value = unit;
-      option.textContent = unit;
+        const option =
+          document.createElement(
+            'option'
+          );
 
-      select.appendChild(option);
 
-    });
+        option.value =
+          unit;
+
+
+        option.textContent =
+          unit;
+
+
+        select.appendChild(
+          option
+        );
+
+
+      }
+    );
 
 
   } catch (error) {
 
-    console.error(error);
+
+    console.error(
+      'Unit loading error:',
+      error
+    );
+
 
     select.innerHTML =
       '<option value="">Unable to load units</option>';
 
+
   }
+
 }
 
 
 
-/* ==========================
+/* =====================================================
    CHECK IN
-   ========================== */
+   ===================================================== */
+
 
 async function checkIn() {
 
+
   const unit =
-    document.getElementById('unit').value;
+    document
+      .getElementById('unit')
+      .value;
 
 
   const last4 =
@@ -358,35 +444,59 @@ async function checkIn() {
       .slice(-4);
 
 
+
+  /* VALIDATE UNIT */
+
+
   if (!unit) {
+
 
     alert(
       'Please select your home unit number.'
     );
 
+
     return;
+
   }
+
+
+
+  /* VALIDATE MOBILE */
 
 
   if (last4.length !== 4) {
 
+
     alert(
-      'Please enter the last 4 digits of your registered mobile numbers.'
+      'Please enter the last 4 digits of your registered mobile number.'
     );
 
+
     return;
+
   }
 
 
+
   const button =
-    document.getElementById('checkButton');
+    document
+      .getElementById(
+        'checkButton'
+      );
 
 
   const loading =
-    document.getElementById('loading');
+    document
+      .getElementById(
+        'loading'
+      );
 
 
-  button.disabled = true;
+
+  button.disabled =
+    true;
+
 
   button.textContent =
     'PLEASE WAIT...';
@@ -396,45 +506,68 @@ async function checkIn() {
     'block';
 
 
+
   try {
+
 
     const url =
       API_URL +
+
       '?action=checkin' +
+
       '&unit=' +
-      encodeURIComponent(unit) +
+      encodeURIComponent(
+        unit
+      ) +
+
       '&last4=' +
-      encodeURIComponent(last4);
+      encodeURIComponent(
+        last4
+      );
+
 
 
     const response =
-      await fetch(url);
+      await fetch(
+        url
+      );
 
 
     const result =
       await response.json();
 
 
-    showResult(result);
+
+    showResult(
+      result
+    );
 
 
   } catch (error) {
 
-    console.error(error);
+
+    console.error(
+      'Check-in error:',
+      error
+    );
 
 
     showResult({
 
-      success: false,
+      success:
+        false,
 
-      title: 'System Error',
+      title:
+        'System Error',
 
       message:
         'Unable to complete your attendance. Please contact the KR7 Residences Owner Admin.'
 
     });
 
+
   } finally {
+
 
     loading.style.display =
       'none';
@@ -447,150 +580,332 @@ async function checkIn() {
     button.textContent =
       'CHECK IN';
 
+
   }
+
 }
 
 
 
-/* ==========================
+/* =====================================================
    RESULT SCREEN
-   ========================== */
+   ===================================================== */
+
 
 function showResult(result) {
 
-  document
-    .getElementById('attendanceForm')
-    .style.display = 'none';
 
   document
-    .getElementById('result')
-    .style.display = 'block';
-
-  document
-    .getElementById('resultIcon')
-    .textContent =
-    result.success ? '✓' : '!';
-
-  document
-    .getElementById('resultTitle')
-    .textContent =
-    result.title ||
-    (result.success
-      ? 'Attendance Recorded'
-      : 'Check-in Failed');
-
-  let message = '';
-
-  /* WELCOME OWNER / PARTNER */
-
-  if (result.success && result.welcomeName) {
-
-    message +=
-      '<div style="font-size:18px;margin-bottom:6px;">Welcome</div>' +
-
-      '<div style="' +
-        'font-size:22px;' +
-        'font-weight:700;' +
-        'color:#17365D;' +
-        'margin-bottom:16px;' +
-      '">' +
-        escapeHtml(result.welcomeName) +
-      '</div>';
-  }
-
-  /* UNIT NUMBER */
-
-  if (result.unit) {
-
-    message +=
-      '<strong>Unit ' +
-      escapeHtml(result.unit) +
-      '</strong>';
-  }
-
-  /* SUCCESS / ERROR MESSAGE */
-
-  if (result.message) {
-
-    message +=
-      '<br><br>' +
-      escapeHtml(result.message);
-  }
-
-  /* CHECK-IN TIME */
-
-  if (result.time) {
-
-    message +=
-      '<br><br><strong>' +
-      escapeHtml(result.time) +
-      '</strong>';
-  }
-
-  document
-    .getElementById('resultMessage')
-    .innerHTML = message;
-}
-
-
-/* ==========================
-   RESET
-   ========================== */
-
-function resetForm() {
-
-  document
-    .getElementById('result')
+    .getElementById(
+      'attendanceForm'
+    )
     .style.display =
     'none';
 
 
   document
-    .getElementById('attendanceForm')
+    .getElementById(
+      'result'
+    )
     .style.display =
     'block';
 
 
-  document
-    .getElementById('unit')
-    .value =
-    '';
+
+  /* ICON */
 
 
   document
-    .getElementById('last4')
-    .value =
+    .getElementById(
+      'resultIcon'
+    )
+    .textContent =
+    result.success
+      ? '✓'
+      : '!';
+
+
+
+  /* TITLE */
+
+
+  document
+    .getElementById(
+      'resultTitle'
+    )
+    .textContent =
+
+    result.title ||
+
+    (
+      result.success
+        ? 'Attendance Recorded'
+        : 'Check-in Failed'
+    );
+
+
+
+  let message =
     '';
+
+
+
+  /* ==================================================
+     SUCCESS
+     ================================================== */
+
+
+  if (result.success) {
+
+
+    /*
+       DISPLAY ONLY THE PERSON
+       WHO ACTUALLY CHECKED IN
+    */
+
+
+    if (
+      result.attendeeName
+    ) {
+
+
+      message +=
+
+        '<div style="' +
+
+          'font-size:27px;' +
+
+          'font-weight:700;' +
+
+          'color:#17365D;' +
+
+          'margin:18px 0 22px;' +
+
+          'line-height:1.4;' +
+
+        '">' +
+
+          escapeHtml(
+            result.attendeeName
+          ) +
+
+        '</div>';
+
+
+    }
+
+
+
+    /* UNIT */
+
+
+    if (
+      result.unit
+    ) {
+
+
+      message +=
+
+        '<div style="' +
+
+          'font-size:21px;' +
+
+          'font-weight:700;' +
+
+          'margin-bottom:28px;' +
+
+        '">' +
+
+          'Unit ' +
+
+          escapeHtml(
+            result.unit
+          ) +
+
+        '</div>';
+
+
+    }
+
+
+
+    /* DATE / TIME */
+
+
+    if (
+      result.time
+    ) {
+
+
+      message +=
+
+        '<div style="' +
+
+          'font-size:20px;' +
+
+          'font-weight:700;' +
+
+          'margin-top:18px;' +
+
+        '">' +
+
+          escapeHtml(
+            result.time
+          ) +
+
+        '</div>';
+
+
+    }
+
+
+  }
+
+
+
+  /* ==================================================
+     ERROR
+     ================================================== */
+
+
+  else {
+
+
+    message =
+
+      '<div style="' +
+
+        'font-size:18px;' +
+
+        'line-height:1.6;' +
+
+        'margin:20px 0;' +
+
+      '">' +
+
+        escapeHtml(
+
+          result.message ||
+
+          'Unable to complete your attendance.'
+
+        ) +
+
+      '</div>';
+
+
+  }
+
+
+
+  document
+    .getElementById(
+      'resultMessage'
+    )
+    .innerHTML =
+    message;
+
 
 }
 
 
 
-/* ==========================
-   SECURITY HELPER
-   ========================== */
+/* =====================================================
+   DONE / RESET
+   ===================================================== */
+
+
+function resetForm() {
+
+
+  document
+    .getElementById(
+      'result'
+    )
+    .style.display =
+    'none';
+
+
+  document
+    .getElementById(
+      'attendanceForm'
+    )
+    .style.display =
+    'block';
+
+
+
+  document
+    .getElementById(
+      'unit'
+    )
+    .value =
+    '';
+
+
+
+  document
+    .getElementById(
+      'last4'
+    )
+    .value =
+    '';
+
+
+}
+
+
+
+/* =====================================================
+   HTML SECURITY
+   ===================================================== */
+
 
 function escapeHtml(value) {
 
-  return String(value || '')
-    .replace(
-      /[&<>"']/g,
-      function(character) {
 
-        return {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[character];
+  return String(
+    value || ''
+  )
+  .replace(
 
-      }
-    );
+    /[&<>"']/g,
+
+    function(character) {
+
+
+      return {
+
+        '&':
+          '&amp;',
+
+        '<':
+          '&lt;',
+
+        '>':
+          '&gt;',
+
+        '"':
+          '&quot;',
+
+        "'":
+          '&#39;'
+
+      }[character];
+
+
+    }
+
+  );
+
 }
 
 
-/* Start */
+
+/* =====================================================
+   START
+   ===================================================== */
+
 
 loadUnits();
 
